@@ -1,0 +1,106 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'idea'
+    id 'eclipse'
+}
+
+group = 'dev.jnic'
+version = '3.7.0'
+
+def javaVersion = 17
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.ow2.asm:asm:9.11.1'
+    implementation 'org.ow2.asm:asm-tree:9.11.1'
+    implementation 'org.ow2.asm:asm-analysis:9.11.1'
+    implementation 'org.tukaani:xz:1.9'
+    implementation('org.simpleframework:simple-xml:2.7.1') {
+        exclude group: 'stax', module: 'stax-api'
+        exclude group: 'stax', module: 'stax'
+        exclude group: 'xpp3', module: 'xpp3'
+    }
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(javaVersion)
+    }
+    withSourcesJar()
+}
+
+application {
+    applicationName = 'OpenJNIC'
+    mainClass = 'dev.jnic.JnicMain'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = javaVersion
+    options.encoding = 'UTF-8'
+    options.compilerArgs += ['-parameters', '-Xlint:none', '-Xmaxerrs', '4096']
+}
+
+tasks.withType(JavaExec).configureEach {
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(javaVersion)
+    }
+}
+
+tasks.withType(AbstractArchiveTask).configureEach {
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+}
+
+tasks.named('jar', Jar) {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest {
+        attributes(
+                'Main-Class': 'dev.jnic.JnicMain',
+                'Implementation-Title': 'OpenJNIC',
+                'Implementation-Version': project.version)
+    }
+    exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+tasks.register('translate', JavaExec) {
+    group = 'application'
+    description = 'Translates a jar: -Pinput=<in.jar> -Poutput=<out.jar> [-Pconfig=<file>] [-Pdebug]'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'dev.jnic.JnicMain'
+
+    def inputJar = providers.gradleProperty('input')
+    def outputJar = providers.gradleProperty('output')
+    def configFile = providers.gradleProperty('config').orElse('config.xml')
+
+    doFirst {
+        if (!inputJar.isPresent() || !outputJar.isPresent()) {
+            throw new GradleException('translate needs -Pinput=<in.jar> and -Poutput=<out.jar>')
+        }
+        def cli = [inputJar.get(), outputJar.get(), configFile.get()]
+        if (project.hasProperty('debug')) {
+            cli << '-debug'
+        }
+        setArgs(cli)
+    }
+}
+
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
+}
+
+eclipse {
+    classpath {
+        downloadSources = true
+        downloadJavadoc = true
+    }
+}

@@ -1,0 +1,28 @@
+<jnic>
+	<options>
+		<stringObf>true</stringObf>
+		<flowObf>true</flowObf>
+		<nativeIntegrity>true</nativeIntegrity>
+		<jarIntegrity>true</jarIntegrity>
+		<antiDebug>true</antiDebug>
+		<useIntrinsics>true</useIntrinsics>
+		<fastCompile>true</fastCompile>
+	</options>
+	<targets>
+		<target>WINDOWS_X86_64</target>
+	</targets>
+	<include>
+		<match>
+			<className>.*</className>
+			<methodName>.*</methodName>
+			<methodDesc>.*</methodDesc>
+		</match>
+	</include>
+	<exclude>
+		<match>
+			<className>.*\$.*</className>
+			<methodName>.*</methodName>
+			<methodDesc>.*</methodDesc>
+		</match>
+	</exclude>
+</jnic>

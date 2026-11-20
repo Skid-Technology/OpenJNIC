@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://discord.gg/skidsolutions">https://discord.gg/skidsolutions</a>
+  <a href="https://discord.gg/skidsolutions">https://discord.gg/skidsolutions by BynBang</a>
 </p>
 
 <p align="center">

@@ -28,6 +28,9 @@
   <img src="assets/divider.svg" alt="" width="720" />
 </p>
 
+This is NOT a Remake or Recreation. However, this may contain AI fills to make this somehow functional.
+
+
 ## How to build
 
 ### Prerequisites
